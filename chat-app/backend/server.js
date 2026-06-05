@@ -29,6 +29,17 @@ app.get("/read_messages", (req, res) => {
     res.json(messages);
 });
 
+app.post("/send_message", (req, res) => {
+    const { text, user } = req.body;
+    if (!text || !user) {
+        return res.status(400).send("Empty data!");
+    }
+    const lastId = messages[messages.length - 1]["id"];
+    const time = Date.now();
+    messages.push({ id: lastId + 1, text: text, user: user, time: time, likes: 0, dislikes: 0 });
+    return res.status(200).json({ message: "Success!" });
+});
+
 app.listen(port, () => {
     console.log(`Chat server listening on port ${port}`);
 });
