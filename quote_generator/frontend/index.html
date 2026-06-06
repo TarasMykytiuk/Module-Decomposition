@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taras Mykytiuk Quotes generator</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <script defer src="frontend.js"></script>
+</head>
+
+<body>
+    <div>
+        <p id="display_quote"></p>
+        <button id="change_quote">Change</button>
+    </div>
+    <div>
+        <label for="add_quote">
+            <h2>Add new quote:</h2>
+        </label>
+        <form id="add_quote">
+            <label for="author">Author:</label>
+            <input id="author" type="text" name="author" required>
+            <label for="new_quote">Quote:</label>
+            <input id="new_quote" type="text" name="new_quote" required>
+            <button id="new_quote_submit" type="submit">Add</button>
+        </form>
+    </div>
+</body>
+
+</html>
