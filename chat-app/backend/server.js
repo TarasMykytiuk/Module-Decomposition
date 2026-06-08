@@ -46,7 +46,7 @@ app.post("/react_to_message", (req, res) => {
         return res.status(400).send("Empty data!");
     }
     messages.forEach((message) => {
-        if (message.id == parseInt(messageId)) {
+        if (message["id"] == parseInt(messageId)) {
             message[reaction] += 1;
             break;
         }
