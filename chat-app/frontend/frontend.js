@@ -1,12 +1,32 @@
 const display_messages_dom = document.getElementById("display_messages");
 const send_button = document.getElementById("send_button");
+const user_input = document.getElementById("message_user");
+const message_input = document.getElementById("message_text");
+const reactions = {
+    LIKE: "likes",
+    DISLIKE: "dislikes"
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+    await renderAllMessages();
+
+    send_button.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const text = message_input.value;
+        const user = user_input.value;
+        await sendMessage(text, user);
+        await renderAllMessages();
+    })
+});
+
+async function renderAllMessages() {
+    display_messages_dom.innerHTML = '';
     const messages = await getMessages();
     const reversed = messages.reverse();
     reversed.forEach(message => {
         renderMessage(message);
     });
-});
+}
 
 function renderMessage(message) {
     const div = document.createElement("div");
@@ -33,8 +53,38 @@ function renderMessage(message) {
     div.appendChild(p_date);
     div.appendChild(interact_div);
     display_messages_dom.appendChild(div);
+
+    like_button.addEventListener("click", async () => {
+        await reactToMessage(div.id, reactions.LIKE);
+        await renderAllMessages();
+    });
+    dislike_button.addEventListener("click", async () => {
+        await reactToMessage(div.id, reactions.DISLIKE);
+        await renderAllMessages();
+    });
 }
 
+async function sendMessage(text, user) {
+    return await fetch(
+        "https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io/send_message",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, user })
+        }
+    );
+}
+
+async function reactToMessage(messageId, reaction) {
+    return await fetch(
+        "https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io/react_to_message",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messageId, reaction })
+        }
+    );
+}
 
 async function getMessages() {
     const res = await fetch("https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io/read_messages");

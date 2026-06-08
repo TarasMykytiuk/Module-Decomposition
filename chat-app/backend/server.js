@@ -40,6 +40,20 @@ app.post("/send_message", (req, res) => {
     return res.status(200).json({ message: "Success!" });
 });
 
+app.post("/react_to_message", (req, res) => {
+    const { messageId, reaction } = req.body;
+    if (!messageId || !reaction) {
+        return res.status(400).send("Empty data!");
+    }
+    messages.forEach((message) => {
+        if (message.id == parseInt(messageId)) {
+            message[reaction] += 1;
+            break;
+        }
+    })
+    return res.status(200).json({ message: "Success!" });
+});
+
 app.listen(port, () => {
     console.log(`Chat server listening on port ${port}`);
 });
