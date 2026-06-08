@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const user = user_input.value;
         await sendMessage(text, user);
         await renderAllMessages();
+        message_input.value = "";
+        user_input.value = "";
     })
 });
 
@@ -37,7 +39,9 @@ function renderMessage(message) {
     const p_text = document.createElement("p");
     p_text.textContent = message["text"];
     const p_date = document.createElement("p");
-    p_date.textContent = message["time"];
+    const timestamp = message["time"];
+    const date = new Date(timestamp)
+    p_date.textContent = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + " " + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
     const interact_div = document.createElement("div");
     interact_div.classList.add("interact_div");
     const like_button = document.createElement("button");
