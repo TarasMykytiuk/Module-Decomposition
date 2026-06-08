@@ -45,12 +45,12 @@ app.post("/react_to_message", (req, res) => {
     if (!messageId || !reaction) {
         return res.status(400).send("Empty data!");
     }
-    messages.forEach((message) => {
-        if (message["id"] == parseInt(messageId)) {
-            message[reaction] += 1;
+    for (let i = 0; i < messages.length; i++) {
+        if (messages[i]["id"] == parseInt(messageId)) {
+            messages[i][reaction] += 1;
             break;
         }
-    })
+    }
     return res.status(200).json({ message: "Success!" });
 });
 
