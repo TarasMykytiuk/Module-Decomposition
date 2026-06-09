@@ -44,7 +44,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/read_messages", (req, res) => {
-    res.json(messages);
+    res.json(Object.fromEntries(messages));
 });
 
 app.post("/send_message", (req, res) => {
