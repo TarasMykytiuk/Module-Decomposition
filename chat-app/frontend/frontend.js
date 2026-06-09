@@ -27,20 +27,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function populateMessagesDom() {
     const messages = await getMessages();
-    const reversed = messages.reverse();
-    renderAllMessages(reversed);
+    renderAllMessages(messages, true);
 }
 
-function renderAllMessages(messages) {
+function renderAllMessages(messages, isOrderReversed) {
     display_messages_dom.innerHTML = '';
-    messages.forEach(message => {
-        renderMessage(message);
+    const messagesArr = Object.entries(messages);
+    if (isOrderReversed) messagesArr.reverse();
+    messagesArr.forEach(entry => {
+        const messageId = entry[0];
+        const message = entry[1];
+        renderMessage(messageId, message);
     });
 }
 
-function renderMessage(message) {
+function renderMessage(messageId, message) {
     const div = document.createElement("div");
-    div.setAttribute("id", message["id"]);
+    div.setAttribute("id", messageId);
     div.classList.add("message_card");
     const h2 = document.createElement("h2");
     h2.innerHTML = message["user"];
