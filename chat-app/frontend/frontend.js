@@ -6,26 +6,35 @@ const reactions = {
     LIKE: "likes",
     DISLIKE: "dislikes"
 }
+const apiUrl = "https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io";
+const refreshTimeSeconds = 60;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    await renderAllMessages();
-
+    await populateMessagesDom();
     send_button.addEventListener("click", async (event) => {
         event.preventDefault();
-        const text = message_input.value;
-        const user = user_input.value;
+        const text = sanitizeInput(message_input.value);
+        const user = sanitizeInput(user_input.value);
         await sendMessage(text, user);
-        await renderAllMessages();
+        await populateMessagesDom();
         message_input.value = "";
         user_input.value = "";
-    })
+    });
+    setInterval(async () => {
+        await populateMessagesDom();
+    }, refreshTimeSeconds * 1000);
 });
 
-async function renderAllMessages() {
-    display_messages_dom.innerHTML = '';
+async function populateMessagesDom() {
     const messages = await getMessages();
     const reversed = messages.reverse();
-    reversed.forEach(message => {
+    display_messages_dom.innerHTML = '';
+    renderAllMessages(reversed);
+}
+
+function renderAllMessages(messages) {
+    display_messages_dom.innerHTML = '';
+    messages.forEach(message => {
         renderMessage(message);
     });
 }
@@ -60,38 +69,59 @@ function renderMessage(message) {
 
     like_button.addEventListener("click", async () => {
         await reactToMessage(div.id, reactions.LIKE);
-        await renderAllMessages();
+        await populateMessagesDom();
     });
     dislike_button.addEventListener("click", async () => {
         await reactToMessage(div.id, reactions.DISLIKE);
-        await renderAllMessages();
+        await populateMessagesDom();
     });
 }
 
+function sanitizeInput(value) {
+    if (typeof (value) !== "string") return ''
+    sanitized = value.trim()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;");
+    return sanitized;
+}
+
 async function sendMessage(text, user) {
-    return await fetch(
-        "https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io/send_message",
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text, user })
-        }
-    );
+    try {
+        const response = await fetch(
+            apiUrl + "/send_message",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, user })
+            }
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function reactToMessage(messageId, reaction) {
-    return await fetch(
-        "https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io/react_to_message",
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messageId, reaction })
-        }
-    );
+    try {
+        const response = await fetch(
+            apiUrl + "/react_to_message",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messageId, reaction })
+            }
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function getMessages() {
-    const res = await fetch("https://oydiv147w81gg1fal8of7o9r.hosting.codeyourfuture.io/read_messages");
+    const res = await fetch(apiUrl + "/read_messages");
     const messages = await res.json();
     return messages;
 }

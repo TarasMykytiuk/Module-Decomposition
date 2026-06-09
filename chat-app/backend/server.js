@@ -1,10 +1,6 @@
 import express from "express";
 import cors from "cors";
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
 const port = process.env.PORT || 3000;
 const messages = [
     {
@@ -25,16 +21,23 @@ const messages = [
     }
 ]
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 app.get("/read_messages", (req, res) => {
     res.json(messages);
 });
 
 app.post("/send_message", (req, res) => {
+    if (!req.body) {
+        return res.status(400).send("Empty data in the request body!");
+    }
     const { text, user } = req.body;
     if (!text || !user) {
-        return res.status(400).send("Empty data!");
+        return res.status(400).send("Message text and user name is required!");
     }
-    const lastId = messages[messages.length - 1]["id"];
+    const lastId = messages.length > 0 ? messages.at(-1)["id"] : 1;
     const time = Date.now();
     messages.push({ id: lastId + 1, text: text, user: user, time: time, likes: 0, dislikes: 0 });
     return res.status(200).json({ message: "Success!" });
@@ -45,12 +48,7 @@ app.post("/react_to_message", (req, res) => {
     if (!messageId || !reaction) {
         return res.status(400).send("Empty data!");
     }
-    for (let i = 0; i < messages.length; i++) {
-        if (messages[i]["id"] == parseInt(messageId)) {
-            messages[i][reaction] += 1;
-            break;
-        }
-    }
+    messages[parseInt(messageId) - 1][reaction] += 1;
     return res.status(200).json({ message: "Success!" });
 });
 
