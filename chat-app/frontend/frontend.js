@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function populateMessagesDom() {
     const messages = await getMessages();
     const reversed = messages.reverse();
-    display_messages_dom.innerHTML = '';
     renderAllMessages(reversed);
 }
 
@@ -44,9 +43,9 @@ function renderMessage(message) {
     div.setAttribute("id", message["id"]);
     div.classList.add("message_card");
     const h2 = document.createElement("h2");
-    h2.textContent = message["user"];
+    h2.innerHTML = message["user"];
     const p_text = document.createElement("p");
-    p_text.textContent = message["text"];
+    p_text.innerHTML = message["text"];
     const p_date = document.createElement("p");
     const timestamp = message["time"];
     const date = new Date(timestamp)
@@ -78,7 +77,6 @@ function renderMessage(message) {
 }
 
 function sanitizeInput(value) {
-    if (typeof (value) !== "string") return ''
     sanitized = value.trim()
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -98,6 +96,9 @@ async function sendMessage(text, user) {
                 body: JSON.stringify({ text, user })
             }
         );
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
         return response;
     } catch (error) {
         console.log(error);
@@ -114,6 +115,9 @@ async function reactToMessage(messageId, reaction) {
                 body: JSON.stringify({ messageId, reaction })
             }
         );
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
         return response;
     } catch (error) {
         console.log(error);
@@ -121,8 +125,15 @@ async function reactToMessage(messageId, reaction) {
 }
 
 async function getMessages() {
-    const res = await fetch(apiUrl + "/read_messages");
-    const messages = await res.json();
-    return messages;
+    try {
+        const response = await fetch(apiUrl + "/read_messages");
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        const messages = await response.json();
+        return messages;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
