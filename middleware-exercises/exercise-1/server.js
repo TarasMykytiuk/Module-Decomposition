@@ -4,7 +4,6 @@ import cors from "cors";
 const port = process.env.PORT || 3000;
 const app = express();
 app.use(cors());
-app.use(express.json());
 
 function usernameMiddleware(req, res, next) {
     const username = req.get("X-Username");
@@ -13,18 +12,34 @@ function usernameMiddleware(req, res, next) {
 }
 
 function jsonBodyMiddleware(req, res, next) {
-    let dataArray = req.body;
-    if (!Array.isArray(dataArray)) {
-        return res.status(400).send("Data has to be an array!");
-    }
+    let bodyData = "";
+    req.on("data", (chunk) => {
+        bodyData += chunk;
+    });
 
-    for (let i = 0; i < dataArray.length; i++) {
-        if (typeof (dataArray[i]) != 'string') {
-            return res.status(400).send("Only strings allowed!");
-            break;
+    req.on("end", () => {
+        if (!bodyData) {
+            return res.status(400).send("Empty request body!");
         }
-    }
-    next();
+        let dataArray;
+        try {
+            dataArray = JSON.parse(bodyData);
+        } catch (err) {
+            return res.status(400).send("Invalid JSON format!");
+        }
+        if (!Array.isArray(dataArray)) {
+            return res.status(400).send("Data has to be an array!");
+        }
+
+        for (let i = 0; i < dataArray.length; i++) {
+            if (typeof (dataArray[i]) != 'string') {
+                return res.status(400).send("Only strings allowed!");
+                break;
+            }
+        }
+        req.body = dataArray;
+        next();
+    });
 }
 
 app.post("/", usernameMiddleware, jsonBodyMiddleware, (req, res) => {
