@@ -25,7 +25,7 @@ function usernameMiddleware(req, res, next) {
 app.post("/", usernameMiddleware, (req, res) => {
     const { username, body } = req;
     let nameAnswer = ''
-    if (username){
+    if (username !== null){
         nameAnswer = "You are authenticated as " + username + ".";
     } else {
         nameAnswer = "You are not authenticated";
